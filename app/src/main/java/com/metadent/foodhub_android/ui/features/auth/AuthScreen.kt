@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,12 +50,20 @@ fun AuthScreen() {
         colors = listOf(Color.Transparent,Color.Black),
         startY =imageSize.value.height.toFloat()/3
     )
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black) ){
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black) ){
         Image(painter = painterResource(id= R.drawable.background),
             contentDescription = null,
-            modifier = Modifier.onGloballyPositioned {
+            modifier = Modifier
+                .onGloballyPositioned {
                 imageSize.value =it.size
-            }.alpha(0.8f))
+            }
+                .alpha(0.6f)
+                .fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+
         Box(modifier = Modifier.matchParentSize()
             .background(brush=brush))
         Button(
@@ -94,7 +103,8 @@ fun AuthScreen() {
             )
         }
 
-        Column(modifier = Modifier.fillMaxWidth()
+        Column(modifier = Modifier
+            .fillMaxWidth()
             .align(Alignment.BottomCenter)
             .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
