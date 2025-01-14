@@ -1,12 +1,16 @@
 package com.metadent.foodhub_android.ui.features.auth.signUp
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.metadent.foodhub_android.data.FoodApi
+import com.metadent.foodhub_android.data.models.SignUpRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,11 +43,31 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
     }
 
     fun onSignUpClick(){
-        _uiState.value = SignUpEvent.Loading
 
-        //perform signup
-        _uiState.value = SignUpEvent.Success
-        _navigationEvent.tryEmit(SignupNavigationEvent.NavigateToHome)
+        viewModelScope.launch {
+            _uiState.value = SignUpEvent.Loading
+            try {
+                val response = foodApi.signUp(
+                    SignUpRequest(
+                        name=name.value,
+                        email=email.value,
+                        password=password.value
+                    ))
+
+                if (response.token.isNotEmpty()){
+                    _uiState.value =SignUpEvent.Success
+                    _navigationEvent.tryEmit(SignupNavigationEvent.NavigateToHome)
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                _uiState.value =SignUpEvent.Error
+            }
+
+//            //perform signup
+//            _uiState.value = SignUpEvent.Success
+//            _navigationEvent.tryEmit(SignupNavigationEvent.NavigateToHome)
+        }
+
     }
 
     sealed class SignupNavigationEvent{
