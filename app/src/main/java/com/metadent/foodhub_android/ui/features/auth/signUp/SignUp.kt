@@ -46,14 +46,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.metadent.foodhub_android.R
+import com.metadent.foodhub_android.ui.features.auth.AuthScreen
+import com.metadent.foodhub_android.ui.navigation.Auth
+import com.metadent.foodhub_android.ui.navigation.Home
+import com.metadent.foodhub_android.ui.navigation.Login
 import com.metadent.foodhub_android.ui.theme.Orange
 import com.metadent.foodhub_android.ui.widgets.FoodHubTextField
 import com.metadent.foodhub_android.ui.widgets.GroupSocialButtons
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel())
+fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel= hiltViewModel())
 {
 Box(modifier =Modifier.fillMaxSize() ){
     val name =viewModel.name.collectAsStateWithLifecycle()
@@ -86,10 +92,17 @@ Box(modifier =Modifier.fillMaxSize() ){
         viewModel.navigationEvent.collectLatest { event->
             when(event){
                 is SignUpViewModel.SignupNavigationEvent.NavigateToHome->{
-                    Toast.makeText(context, "Sign up Successful",
-                        Toast.LENGTH_SHORT).show()
-                }else->{
+//                    Toast.makeText(context, "Sign up Successful",
+//                        Toast.LENGTH_SHORT).show()
+                    navController.navigate(Home){
+                        popUpTo(Auth){
+                            inclusive=true
+                        }
+                    }
+                }
 
+                is SignUpViewModel.SignupNavigationEvent.NavigateToLogin->{
+                    navController.navigate(Login)
                 }
             }
         }
@@ -200,7 +213,7 @@ Box(modifier =Modifier.fillMaxSize() ){
         Text(
             text = stringResource(id=R.string.already_have_account),
             modifier = Modifier.padding(8.dp)
-                .clickable {  }
+                .clickable { viewModel.onLoginClicked()}
                 .fillMaxWidth(),
             textAlign = TextAlign.Center
         )
@@ -217,5 +230,5 @@ Box(modifier =Modifier.fillMaxSize() ){
 @Composable
 fun PreviewSignUpScreen()
 {
-    SignUpScreen()
+    SignUpScreen(rememberNavController())
 }

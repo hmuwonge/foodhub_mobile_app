@@ -56,7 +56,7 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
 
                 if (response.token.isNotEmpty()){
                     _uiState.value =SignUpEvent.Success
-                    _navigationEvent.tryEmit(SignupNavigationEvent.NavigateToHome)
+                    _navigationEvent.emit(SignupNavigationEvent.NavigateToHome)
                 }
             }catch (e: Exception){
                 e.printStackTrace()
@@ -68,6 +68,12 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
 //            _navigationEvent.tryEmit(SignupNavigationEvent.NavigateToHome)
         }
 
+    }
+
+    fun onLoginClicked() {
+        viewModelScope.launch {
+            _navigationEvent.emit(SignupNavigationEvent.NavigateToLogin)
+        }
     }
 
     sealed class SignupNavigationEvent{
