@@ -1,11 +1,13 @@
 package com.metadent.foodhub_android.ui.features.auth.signUp
 
+import android.content.Context
+import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.metadent.foodhub_android.data.FoodApi
+import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.SignUpRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -15,10 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
+
+    val googleAuthUiProvider = GoogleAuthUiProvider()
     private val _uiState = MutableStateFlow<SignUpEvent>(SignUpEvent.Nothing)
     val uiState = _uiState.asStateFlow()
 
-    private val _navigationEvent = MutableSharedFlow<SignupNavigationEvent>()
+    private val _navigationEvent = MutableSharedFlow<SignUpNavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     private val _email = MutableStateFlow("")
@@ -56,7 +60,7 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
 
                 if (response.token.isNotEmpty()){
                     _uiState.value =SignUpEvent.Success
-                    _navigationEvent.emit(SignupNavigationEvent.NavigateToHome)
+                    _navigationEvent.emit(SignUpNavigationEvent.NavigateToHome)
                 }
             }catch (e: Exception){
                 e.printStackTrace()
@@ -65,21 +69,39 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
 
 //            //perform signup
 //            _uiState.value = SignUpEvent.Success
-//            _navigationEvent.tryEmit(SignupNavigationEvent.NavigateToHome)
+//            _navigationEvent.tryEmit(SignUpNavigationEvent.NavigateToHome)
         }
 
     }
+
+//    fun onGoogleSignInClicked(context: Context){
+//        viewModelScope.launch {
+//            _uiState.value =SignUpEvent.Loading
+//
+//            val response = googleAuthUiProvider.signIn(context,CredentialManager.create(context))
+//
+//            if (response != null) {
+//                _uiState.value = SignInEvent.Success
+//                _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
+//            }else{
+//                _uiState.value = SignInEvent.Error
+//            }
+//            _navigationEvent.emit(SignUpNavigationEvent.NavigateToSignUp)
+//        }
+//    }
 
     fun onLoginClicked() {
         viewModelScope.launch {
-            _navigationEvent.emit(SignupNavigationEvent.NavigateToLogin)
+            _navigationEvent.emit(SignUpNavigationEvent.NavigateToLogin)
         }
     }
 
-    sealed class SignupNavigationEvent{
-        object NavigateToLogin: SignupNavigationEvent()
-        object NavigateToHome: SignupNavigationEvent()
+    sealed class SignUpNavigationEvent{
+        object NavigateToSignUp: SignUpNavigationEvent()
+        object NavigateToLogin: SignUpNavigationEvent()
+        object NavigateToHome: SignUpNavigationEvent()
     }
+
 
     sealed class SignUpEvent{
         object Nothing: SignUpEvent()
@@ -87,4 +109,6 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
         object Error: SignUpEvent()
         object Loading: SignUpEvent()
     }
+
+
 }
