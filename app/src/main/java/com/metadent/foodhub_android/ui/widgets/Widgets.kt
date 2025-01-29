@@ -1,5 +1,6 @@
 package com.metadent.foodhub_android.ui.widgets
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -35,33 +37,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.metadent.foodhub_android.R
+import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
 import com.metadent.foodhub_android.ui.theme.Orange
 
 
 @Composable
 fun GroupSocialButtons(
     color: Color,
-    onFacebookClick: ()->Unit,
-    onGoogleClick: ()->Unit,
+   viewModel:BaseAuthViewModel
 ){
     Column {
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically) {
             HorizontalDivider(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
                     .padding(end = 8.dp)            ,
                 thickness = 1.dp,
                 color=color
             )
             Text(text = stringResource(id= R.string.sign_in_with), color = color, modifier = Modifier.padding(8.dp))
             HorizontalDivider(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
                     .padding(start = 8.dp) ,
                 thickness = 1.dp,
                 color=color
             )
         }
+
+        val context = LocalContext.current as ComponentActivity
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -69,13 +75,13 @@ fun GroupSocialButtons(
             SocialButton(
                 icon = R.drawable.ic_google,
                 title = R.string.sign_with_google,
-                onGoogleClick
+              onClick =   { viewModel.onGoogleClicked(context) }
             )
 
             SocialButton(
                 icon = R.drawable.ic_facebook,
                 title = R.string.sign_with_facebook,
-                onFacebookClick
+              onClick =   { viewModel.onFacebookClicked(context) }
             )
 
         }

@@ -216,8 +216,8 @@ Box(modifier =Modifier.fillMaxSize() ){
         Spacer(modifier=Modifier.size(20.dp))
         GroupSocialButtons(
             color = Color.Black,
-            onFacebookClick = {}
-        ) { }
+            viewModel=viewModel
+        )
     }
 }
 }

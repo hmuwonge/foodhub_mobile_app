@@ -2,6 +2,8 @@
 agp = "8.7.3"
 converterGson = "2.9.0"
 credentials = "1.3.0"
+facebookAndroidSdk = "latest.release"
+facebookLogin = "18.0.0"
 googleid = "1.1.1"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
@@ -29,6 +31,8 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycleRuntime" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+facebook-android-sdk = { module = "com.facebook.android:facebook-android-sdk", version.ref = "facebookAndroidSdk" }
+facebook-login = { module = "com.facebook.android:facebook-login", version.ref = "facebookLogin" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }

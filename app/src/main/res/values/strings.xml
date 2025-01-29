@@ -15,5 +15,11 @@
     <string name="full_name">Full Name</string>
     <string name="full_name_placeholder">saava</string>
     <string name="sign_in">Sign In</string>
-    <string name="dont_have_account">Don\\\'t have an account? Sign Up</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+
+
+    <string name="facebook_app_id">484306258058742</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">f8c0a691eb0d19e11ca608210ca85e62</string>
+
 </resources>

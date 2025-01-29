@@ -2,14 +2,21 @@ package com.metadent.foodhub_android.ui.features.auth.signIn
 
 import android.content.Context
 import android.util.Log
+import androidx.core.app.ComponentActivity
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.facebook.CallbackManager
+import com.facebook.CallbackManager.Factory.create
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.OAuthRequest
 import com.metadent.foodhub_android.data.models.SignInRequest
-import com.metadent.foodhub_android.data.models.SignUpRequest
+import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +25,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class SignInViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
 
-    val googleAuthUiProvider = GoogleAuthUiProvider()
+@HiltViewModel
+class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
+
+
 
     private val _uiState = MutableStateFlow<SignInEvent>(SignInEvent.Nothing)
     val uiState = _uiState.asStateFlow()
@@ -68,43 +76,20 @@ class SignInViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
 //            _uiState.value = SignUpEvent.Success
 //            _navigationEvent.tryEmit(SignUpNavigationEvent.NavigateToHome)
         }
-
     }
 
-    fun onGoogleSignInClicked(context: Context){
-        viewModelScope.launch {
-            _uiState.value =SignInEvent.Loading
-
-            val response = googleAuthUiProvider.signIn(context,CredentialManager.create(context))
-
-            if (response != null) {
-                val request = OAuthRequest(
-                    token = response.token,
-                    provider = "google"
-                )
-
-                val res =foodApi.oAuth(request)
-                if (res.token.isNotEmpty()){
-                    Log.d("signInviewmodel", "ongoogleClicked: ${res.token}")
-                    _uiState.value = SignInEvent.Success
-                    _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
-                }else{
-                    _uiState.value = SignInEvent.Error
-                }
-
-
-
-            }else{
-                _uiState.value = SignInEvent.Error
-            }
-            _navigationEvent.emit(SignInNavigationEvent.NavigateToSignUp)
-        }
+    fun onGoogleSignInClicked(context: androidx.activity.ComponentActivity){
+        initiateGoogleSignIn(context)
     }
 
     fun onSignUpClicked() {
         viewModelScope.launch {
             _navigationEvent.emit(SignInNavigationEvent.NavigateToSignUp)
         }
+    }
+
+    fun onFacebookSignInClicked(context: androidx.activity.ComponentActivity){
+        initiateFacebookLogin(context)
     }
 
 
@@ -119,5 +104,24 @@ class SignInViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
         object Success: SignInEvent()
         object Error: SignInEvent()
         object Loading: SignInEvent()
+    }
+
+    override fun loading() {
+       viewModelScope.launch { _uiState.value = SignInEvent.Loading }
+    }
+
+    override fun onGoogleError(msg: String) {
+        viewModelScope.launch { _uiState.value = SignInEvent.Error }
+    }
+
+    override fun onFacebookError(msg: String) {
+        viewModelScope.launch { _uiState.value = SignInEvent.Error }
+    }
+
+    override fun onSocialLoginSuccess(token: String) {
+    viewModelScope.launch {
+        _uiState.value =SignInEvent.Success
+        _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
+    }
     }
 }

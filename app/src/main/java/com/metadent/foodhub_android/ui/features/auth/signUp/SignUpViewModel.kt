@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.SignUpRequest
+import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
+import com.metadent.foodhub_android.ui.features.auth.signIn.SignInViewModel.SignInEvent
+import com.metadent.foodhub_android.ui.features.auth.signIn.SignInViewModel.SignInNavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,9 +19,29 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
+class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
 
     val googleAuthUiProvider = GoogleAuthUiProvider()
+
+    override fun loading() {
+        viewModelScope.launch { _uiState.value = SignUpEvent.Loading }
+    }
+
+    override fun onGoogleError(msg: String) {
+        viewModelScope.launch { _uiState.value = SignUpEvent.Error }
+    }
+
+    override fun onFacebookError(msg: String) {
+        viewModelScope.launch { _uiState.value = SignUpEvent.Error }
+    }
+
+    override fun onSocialLoginSuccess(token: String) {
+        viewModelScope.launch {
+            _uiState.value = SignUpEvent.Success
+            _navigationEvent.emit(SignUpNavigationEvent.NavigateToHome)
+        }
+    }
+
     private val _uiState = MutableStateFlow<SignUpEvent>(SignUpEvent.Nothing)
     val uiState = _uiState.asStateFlow()
 

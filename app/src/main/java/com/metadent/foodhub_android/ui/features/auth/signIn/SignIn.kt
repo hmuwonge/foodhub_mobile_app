@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.metadent.foodhub_android.MainActivity
 import com.metadent.foodhub_android.R
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel
@@ -205,10 +206,8 @@ Box(modifier =Modifier.fillMaxSize() ){
         val context = LocalContext.current
         GroupSocialButtons(
             color = Color.Black,
-            onFacebookClick = {}
-        ) {
-            viewModel.onGoogleSignInClicked(context)
-        }
+            viewModel=viewModel
+        )
     }
 }
 }

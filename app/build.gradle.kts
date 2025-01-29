@@ -76,6 +76,9 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
+    implementation(libs.facebook.login)
+    implementation(libs.facebook.android.sdk)
+
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 }
