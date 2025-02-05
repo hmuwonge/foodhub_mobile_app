@@ -21,7 +21,6 @@ class GoogleAuthUiProvider {
             getCredentialRequest()
         ).credential
         return handleCredentials(creds)
-
     }
 
     private fun handleCredentials(creds: Credential):GoogleAccount{

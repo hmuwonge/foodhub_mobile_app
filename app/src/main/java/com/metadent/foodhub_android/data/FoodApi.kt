@@ -4,6 +4,7 @@ import com.metadent.foodhub_android.data.models.SignUpRequest
 import com.metadent.foodhub_android.data.models.AuthResponse
 import com.metadent.foodhub_android.data.models.OAuthRequest
 import com.metadent.foodhub_android.data.models.SignInRequest
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -16,5 +17,5 @@ interface FoodApi {
     suspend fun signIn(@Body request: SignInRequest): AuthResponse
 
     @POST("/auth/oauth")
-    suspend fun oAuth(@Body request: OAuthRequest): AuthResponse
+    suspend fun oAuth(@Body request: OAuthRequest): Response<AuthResponse>
 }
