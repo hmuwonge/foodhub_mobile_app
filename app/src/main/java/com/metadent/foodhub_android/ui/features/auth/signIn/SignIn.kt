@@ -1,4 +1,4 @@
-package com.metadent.foodhub_android.ui.features.auth.signUp
+package com.metadent.foodhub_android.ui.features.auth.signIn
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -43,7 +43,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.metadent.foodhub_android.MainActivity
 import com.metadent.foodhub_android.R
+import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
+import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel
 import com.metadent.foodhub_android.ui.navigation.Auth
 import com.metadent.foodhub_android.ui.navigation.Home
 import com.metadent.foodhub_android.ui.navigation.Login
@@ -53,10 +56,9 @@ import com.metadent.foodhub_android.ui.widgets.GroupSocialButtons
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel= hiltViewModel())
+fun SignInScreen(navController: NavController, viewModel: SignInViewModel = hiltViewModel())
 {
 Box(modifier =Modifier.fillMaxSize() ){
-    val name =viewModel.name.collectAsStateWithLifecycle()
     val email =viewModel.email.collectAsStateWithLifecycle()
     val password =viewModel.password.collectAsStateWithLifecycle()
     val errorMessage = remember { mutableStateOf<String>("") }
@@ -64,13 +66,13 @@ Box(modifier =Modifier.fillMaxSize() ){
 
     val uiState = viewModel.uiState.collectAsState()
     when(uiState.value){
-        is SignUpViewModel.SignUpEvent.Error->{
+        is SignInViewModel.SignInEvent.Error ->{
             loading.value=false
             errorMessage.value ="Failed"
 
         }
 
-        is SignUpViewModel.SignUpEvent.Loading->{
+        is SignInViewModel.SignInEvent.Loading ->{
             loading.value=true
             errorMessage.value =""
         }
@@ -84,8 +86,9 @@ Box(modifier =Modifier.fillMaxSize() ){
     val context = LocalContext.current
     LaunchedEffect(true) {
         viewModel.navigationEvent.collectLatest { event->
+
             when(event){
-                is SignUpViewModel.SignUpNavigationEvent.NavigateToHome->{
+                is SignInViewModel.SignInNavigationEvent.NavigateToHome ->{
 //                    Toast.makeText(context, "Sign up Successful",
 //                        Toast.LENGTH_SHORT).show()
                     navController.navigate(Home){
@@ -95,12 +98,13 @@ Box(modifier =Modifier.fillMaxSize() ){
                     }
                 }
 
-                is SignUpViewModel.SignUpNavigationEvent.NavigateToLogin->{
+                is SignInViewModel.SignInNavigationEvent.NavigateToLogin ->{
                     navController.navigate(Login)
                 }
 
                 else->{}
             }
+
         }
     }
 
@@ -123,21 +127,6 @@ Box(modifier =Modifier.fillMaxSize() ){
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier=Modifier.size(20.dp))
-        FoodHubTextField(
-            value =name.value,
-            onValueChange = {
-                viewModel.onNameChange(it)
-            },
-            label={
-                Text(text= stringResource(id=R.string.full_name),color = Color.Gray,
-                    textAlign =TextAlign.Center)
-            },
-            placeholder = {
-                Text(text= stringResource(id=R.string.full_name_placeholder))
-            },
-            modifier = Modifier.fillMaxWidth(),
-        )
         Spacer(modifier=Modifier.size(20.dp))
         FoodHubTextField(
             value = email.value,
@@ -175,7 +164,7 @@ Box(modifier =Modifier.fillMaxSize() ){
 
         Text(text=errorMessage.value?:"", color = Color.Red)
         Button(
-            onClick = viewModel::onSignUpClick,
+            onClick = viewModel::onSignInClick,
             modifier = Modifier.height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Orange)
             ) {
@@ -195,7 +184,7 @@ Box(modifier =Modifier.fillMaxSize() ){
                     }else{
                         Text(
                             text = stringResource(
-                                id=R.string.sign_up
+                                id=R.string.sign_in
                             ),
                             modifier = Modifier.padding(horizontal = 32.dp)
                         )
@@ -207,13 +196,14 @@ Box(modifier =Modifier.fillMaxSize() ){
         }
         Spacer(modifier=Modifier.size(20.dp))
         Text(
-            text = stringResource(id=R.string.already_have_account),
+            text = stringResource(id=R.string.dont_have_account),
             modifier = Modifier.padding(8.dp)
-                .clickable { viewModel.onLoginClicked()}
+                .clickable { viewModel.onSignInClick()}
                 .fillMaxWidth(),
             textAlign = TextAlign.Center
         )
         Spacer(modifier=Modifier.size(20.dp))
+        val context = LocalContext.current
         GroupSocialButtons(
             color = Color.Black,
             viewModel=viewModel
@@ -224,7 +214,7 @@ Box(modifier =Modifier.fillMaxSize() ){
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewSignUpScreen()
+fun PreviewSignInScreen()
 {
-    SignUpScreen(rememberNavController())
+    SignInScreen(rememberNavController())
 }

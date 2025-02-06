@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.ui.features.auth.AuthScreen
+import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
 import com.metadent.foodhub_android.ui.navigation.Auth
 import com.metadent.foodhub_android.ui.navigation.Home
@@ -150,7 +151,7 @@ class MainActivity : ComponentActivity() {
                                 )+ fadeOut(animationSpec = tween(300))
                             }
                         ) {
-                            Box(modifier = Modifier.fillMaxSize().background(Color.Green))
+                            SignInScreen(navController)
                         }
 
                         composable<Home> {
