@@ -79,6 +79,9 @@ dependencies {
     implementation(libs.facebook.login)
     implementation(libs.facebook.android.sdk)
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 }
