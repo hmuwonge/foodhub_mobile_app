@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.SignUpRequest
+import com.metadent.foodhub_android.data.remote.ApiResponse
+import com.metadent.foodhub_android.data.remote.safeApiCall
+import com.metadent.foodhub_android.ui.features.auth.AuthScreenViewModel.AuthEvent
 import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInViewModel.SignInEvent
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInViewModel.SignInNavigationEvent
@@ -28,11 +31,17 @@ class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
     }
 
     override fun onGoogleError(msg: String) {
-        viewModelScope.launch { _uiState.value = SignUpEvent.Error }
+        viewModelScope.launch {
+            errorDescription=msg
+            error = "Google Sign In Failed"
+            _uiState.value = SignUpEvent.Error }
     }
 
     override fun onFacebookError(msg: String) {
-        viewModelScope.launch { _uiState.value = SignUpEvent.Error }
+        viewModelScope.launch {
+            errorDescription=msg
+            error = "Facebook Sign In Failed"
+            _uiState.value = SignUpEvent.Error }
     }
 
     override fun onSocialLoginSuccess(token: String) {
@@ -73,22 +82,35 @@ class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
 
         viewModelScope.launch {
             _uiState.value = SignUpEvent.Loading
-            try {
-                val response = foodApi.signUp(
-                    SignUpRequest(
-                        name=name.value,
-                        email=email.value,
-                        password=password.value
-                    ))
-
-                if (response.token.isNotEmpty()){
-                    _uiState.value =SignUpEvent.Success
-                    _navigationEvent.emit(SignUpNavigationEvent.NavigateToHome)
+//            try {
+                val response = safeApiCall {
+                    foodApi.signUp(
+                        SignUpRequest(
+                            name=name.value,
+                            email=email.value,
+                            password=password.value
+                        )
+                    )
                 }
-            }catch (e: Exception){
-                e.printStackTrace()
-                _uiState.value =SignUpEvent.Error
-            }
+                when (response){
+                    is ApiResponse.Success->{
+                            _uiState.value =SignUpEvent.Success
+                            _navigationEvent.emit(SignUpNavigationEvent.NavigateToHome)
+                    }
+                    else->{
+                        val err = (response as? ApiResponse.Error)?.code ?:0
+                        error = "Sign Up Failed"
+                        errorDescription = "Failed to sign up"
+                        when (err){
+                            400->{
+                                error ="Invalid Credentials"
+                                errorDescription="Please enter correct details"
+                            }
+                        }
+                        _uiState.value = SignUpEvent.Error
+                    }
+                }
+
 
 //            //perform signup
 //            _uiState.value = SignUpEvent.Success

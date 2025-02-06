@@ -26,6 +26,7 @@ class AuthScreenViewModel @Inject constructor(override val foodApi: FoodApi): Ba
         object NavigateToSignUp : AuthScreenNavigationEvent()
         object NavigateToLogin : AuthScreenNavigationEvent()
         object NavigateToHome : AuthScreenNavigationEvent()
+        object ShowErrorDialog : AuthScreenNavigationEvent()
     }
 
     sealed class AuthEvent {
@@ -36,15 +37,26 @@ class AuthScreenViewModel @Inject constructor(override val foodApi: FoodApi): Ba
     }
 
     override fun loading() {
-        viewModelScope.launch { _uiState.value = AuthEvent.Loading }
+        viewModelScope.launch {
+            _uiState.value = AuthEvent.Loading }
     }
 
     override fun onGoogleError(msg: String) {
-        viewModelScope.launch { _uiState.value = AuthEvent.Error }
+        viewModelScope.launch {
+            errorDescription=msg
+            error = "Google Sign In Failed"
+            _uiState.value = AuthEvent.Error
+            _navigationEvent.emit(AuthScreenNavigationEvent.ShowErrorDialog)
+        }
     }
 
     override fun onFacebookError(msg: String) {
-        viewModelScope.launch { _uiState.value = AuthEvent.Error }
+        viewModelScope.launch {
+            errorDescription=msg
+            error = "Facebook Sign In Failed"
+            _uiState.value = AuthEvent.Error
+            _navigationEvent.emit(AuthScreenNavigationEvent.ShowErrorDialog)
+        }
     }
 
     override fun onSocialLoginSuccess(token: String) {

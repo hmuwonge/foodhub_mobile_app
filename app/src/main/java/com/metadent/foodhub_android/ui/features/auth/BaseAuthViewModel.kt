@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import java.lang.Error
 
 abstract class BaseAuthViewModel(open val foodApi: FoodApi): ViewModel() {
+    var error: String =""
+    var errorDescription: String =""
     private val googleAuthUiProvider = GoogleAuthUiProvider()
     private lateinit var callbackManager: CallbackManager
 
@@ -39,11 +41,17 @@ abstract class BaseAuthViewModel(open val foodApi: FoodApi): ViewModel() {
         viewModelScope.launch {
            loading()
 
-            val response = googleAuthUiProvider.signIn(context, CredentialManager.create(context))
+            try {
+                val response = googleAuthUiProvider.signIn(context, CredentialManager.create(context))
 
-            fetchFoodApiToken(response.token,"google"){
-                onGoogleError(it)
+                fetchFoodApiToken(response.token,"google"){
+                    onGoogleError(it)
+                }
+            }catch (e: Throwable){
+                onGoogleError(e.message.toString())
             }
+
+
 //            _navigationEvent.emit(SignInNavigationEvent.NavigateToSignUp)
         }
     }

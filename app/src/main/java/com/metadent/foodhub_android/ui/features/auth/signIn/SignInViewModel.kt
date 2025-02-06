@@ -16,7 +16,11 @@ import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.OAuthRequest
 import com.metadent.foodhub_android.data.models.SignInRequest
+import com.metadent.foodhub_android.data.remote.ApiResponse
+import com.metadent.foodhub_android.data.remote.safeApiCall
 import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
+import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel.SignUpEvent
+import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel.SignUpNavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,26 +59,38 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
 
         viewModelScope.launch {
             _uiState.value = SignInEvent.Loading
-            try {
-                val response = foodApi.signIn(
-                    SignInRequest(
-                        email=email.value,
-                        password=password.value
+                val response = safeApiCall {
+                    foodApi.signIn(
+                        SignInRequest(
+                            email=email.value,
+                            password=password.value
+                        )
                     )
-                )
-
-                if (response.token.isNotEmpty()){
-                    _uiState.value =SignInEvent.Success
-                    _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
                 }
-            }catch (e: Exception){
-                e.printStackTrace()
-                _uiState.value =SignInEvent.Error
-            }
 
-//            //perform signup
-//            _uiState.value = SignUpEvent.Success
-//            _navigationEvent.tryEmit(SignUpNavigationEvent.NavigateToHome)
+                when (response){
+                    is ApiResponse.Success->{
+                        _uiState.value = SignInEvent.Success
+                        _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
+                    }
+                    else->{
+                        val err = (response as? ApiResponse.Error)?.code ?:0
+                        error = "Sign In Failed"
+                        errorDescription = "Failed to sign up"
+                        when (err){
+                            400->{
+                                error ="Invalid Credentials"
+                                errorDescription="Please enter correct details"
+                            }
+                        }
+                        _uiState.value = SignInEvent.Error
+                    }
+                }
+//                if (response.body()?.token?.isNotEmpty()==true){
+//                    _uiState.value =SignInEvent.Success
+//                    _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
+//                }
+
         }
     }
 

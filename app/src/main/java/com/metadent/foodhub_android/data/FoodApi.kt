@@ -11,10 +11,10 @@ import retrofit2.http.POST
 interface FoodApi {
 
     @POST("/auth/signup")
-    suspend fun signUp(@Body request: SignUpRequest): AuthResponse
+    suspend fun signUp(@Body request: SignUpRequest): Response<AuthResponse>
 
     @POST("/auth/signin")
-    suspend fun signIn(@Body request: SignInRequest): AuthResponse
+    suspend fun signIn(@Body request: SignInRequest): Response<AuthResponse>
 
     @POST("/auth/oauth")
     suspend fun oAuth(@Body request: OAuthRequest): Response<AuthResponse>
