@@ -18,6 +18,7 @@ import com.metadent.foodhub_android.data.models.OAuthRequest
 import com.metadent.foodhub_android.data.models.SignInRequest
 import com.metadent.foodhub_android.data.remote.ApiResponse
 import com.metadent.foodhub_android.data.remote.safeApiCall
+import com.metadent.foodhub_android.ui.features.auth.AuthScreenViewModel.AuthScreenNavigationEvent
 import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel.SignUpEvent
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel.SignUpNavigationEvent
@@ -113,6 +114,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
         object NavigateToSignUp: SignInNavigationEvent()
         object NavigateToLogin: SignInNavigationEvent()
         object NavigateToHome: SignInNavigationEvent()
+        object ShowErrorDialog : SignInNavigationEvent()
     }
 
     sealed class SignInEvent{
