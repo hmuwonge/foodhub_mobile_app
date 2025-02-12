@@ -5,6 +5,7 @@ import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.metadent.foodhub_android.data.FoodApi
+import com.metadent.foodhub_android.data.FoodHubSession
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.SignUpRequest
 import com.metadent.foodhub_android.data.remote.ApiResponse
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
+class SignUpViewModel @Inject constructor(override val foodApi: FoodApi,
+    val session: FoodHubSession): BaseAuthViewModel(foodApi) {
 
     val googleAuthUiProvider = GoogleAuthUiProvider()
 
@@ -46,6 +48,7 @@ class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
 
     override fun onSocialLoginSuccess(token: String) {
         viewModelScope.launch {
+            session.storeToken(token)
             _uiState.value = SignUpEvent.Success
             _navigationEvent.emit(SignUpNavigationEvent.NavigateToHome)
         }
@@ -95,6 +98,7 @@ class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
                 when (response){
                     is ApiResponse.Success->{
                             _uiState.value =SignUpEvent.Success
+                        session.storeToken(response.data.token)
                             _navigationEvent.emit(SignUpNavigationEvent.NavigateToHome)
                     }
                     else->{

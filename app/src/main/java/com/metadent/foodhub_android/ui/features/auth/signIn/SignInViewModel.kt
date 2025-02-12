@@ -13,6 +13,7 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.metadent.foodhub_android.data.FoodApi
+import com.metadent.foodhub_android.data.FoodHubSession
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.OAuthRequest
 import com.metadent.foodhub_android.data.models.SignInRequest
@@ -32,7 +33,8 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
+class SignInViewModel @Inject constructor(override val foodApi: FoodApi,
+    val session: FoodHubSession): BaseAuthViewModel(foodApi) {
 
 
 
@@ -72,6 +74,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
                 when (response){
                     is ApiResponse.Success->{
                         _uiState.value = SignInEvent.Success
+                        session.storeToken(response.data.token)
                         _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
                     }
                     else->{
@@ -138,6 +141,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
 
     override fun onSocialLoginSuccess(token: String) {
     viewModelScope.launch {
+        session.storeToken(token)
         _uiState.value =SignInEvent.Success
         _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
     }

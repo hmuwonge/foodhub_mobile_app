@@ -15,7 +15,7 @@ class FoodHubSession(val context: Context) {
     }
 
     fun getToken():String?{
-        sharedPref.getString("token","")?.let {
+        sharedPref.getString("token",null)?.let {
             return it
         }
         return null

@@ -117,7 +117,7 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
 
         Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
             AsyncImage(
-                model = R.drawable.restaurant,
+                model = restaurant.imageUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
                     .weight(7.5f),
@@ -221,18 +221,63 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
 @Composable
 fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
 
-    Column(modifier = Modifier.padding(8.dp)
+    Column(modifier = Modifier
+        .padding(8.dp)
         .clip(RoundedCornerShape(45.dp))
         .height(90.dp)
+        .width(60.dp)
         .clickable { onCategorySelected(category) }
-        .padding(8.dp)
+        .background(color=Color.Gray.copy(0.1f))
+        ,
+
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(model = category.imageUrl, contentDescription = null,
             modifier = Modifier.size(40.dp).clip(CircleShape),
             contentScale = ContentScale.Inside)
         Spacer(modifier = Modifier.size(8.dp))
-        Text(text = category.name)
+        Text(text = category.name,
+            style = TextStyle(fontSize = 10.sp))
     }
+}
+
+@Composable
+fun CategoryItem2(){
+
+    Column(modifier = Modifier.padding(8.dp)
+        .height(90.dp)
+        .clickable {  }
+        .padding(8.dp)
+        .background(Color.White),
+
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+//        AsyncImage(model = category.imageUrl, contentDescription = null,
+//            modifier = Modifier.size(40.dp).clip(CircleShape),
+//            contentScale = ContentScale.Inside)
+        Image(
+            painter =  painterResource(id=R.drawable.burger),
+            contentDescription = null,
+            modifier =Modifier.size(40.dp).clip(CircleShape),
+            contentScale = ContentScale.Crop,
+
+            )
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(text = "category name",
+            style = TextStyle(fontSize = 10.sp)
+        )
+    }
+
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCatItem()
+{
+    CategoryItem2()
 }
 
 @Composable
