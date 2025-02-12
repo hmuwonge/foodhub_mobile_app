@@ -227,8 +227,9 @@ fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
         .height(90.dp)
         .width(60.dp)
         .clickable { onCategorySelected(category) }
-        .background(color=Color.Gray.copy(0.1f))
-        ,
+        .shadow(16.dp, shape=RoundedCornerShape(45.dp))
+        .background(color=Color.White)),
+
 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -238,7 +239,9 @@ fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
             contentScale = ContentScale.Inside)
         Spacer(modifier = Modifier.size(8.dp))
         Text(text = category.name,
-            style = TextStyle(fontSize = 10.sp))
+            style = TextStyle(fontSize = 10.sp),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
