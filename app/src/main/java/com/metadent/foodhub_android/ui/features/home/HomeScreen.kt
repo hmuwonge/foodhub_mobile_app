@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -221,14 +222,15 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
 @Composable
 fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
 
-    Column(modifier = Modifier
+    Column(
+        modifier = Modifier
         .padding(8.dp)
         .clip(RoundedCornerShape(45.dp))
         .height(90.dp)
         .width(60.dp)
         .clickable { onCategorySelected(category) }
         .shadow(16.dp, shape=RoundedCornerShape(45.dp))
-        .background(color=Color.White)),
+        .background(color=Color.White),
 
 
         verticalArrangement = Arrangement.Center,
