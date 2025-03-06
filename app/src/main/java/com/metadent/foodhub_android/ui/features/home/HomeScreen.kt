@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +46,7 @@ import com.metadent.foodhub_android.R
 import com.metadent.foodhub_android.data.models.Category
 import com.metadent.foodhub_android.data.models.Restaurant
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
+import com.metadent.foodhub_android.ui.theme.Orange
 import com.metadent.foodhub_android.ui.theme.Typography
 import com.metadent.foodhub_android.ui.theme.Yellow
 
@@ -55,7 +57,12 @@ fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewMo
         val uiState = viewModel.uiState.collectAsState()
         when(uiState.value){
             is HomeViewModel.HomeScreenState.Loading->{
-                Text(text = "Loading")
+                Box(modifier = Modifier.align(Alignment.CenterHorizontally)){
+                    Text(text = "Loading")
+                                    CircularProgressIndicator(color = Orange,
+                    modifier = Modifier.padding(horizontal = 32.dp)
+                )
+                }
             }
 
             is HomeViewModel.HomeScreenState.Empty->{
@@ -229,16 +236,27 @@ fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
         .height(90.dp)
         .width(60.dp)
         .clickable { onCategorySelected(category) }
-        .shadow(16.dp, shape=RoundedCornerShape(45.dp))
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(45.dp),
+                ambientColor = Orange,
+                spotColor = Orange
+            )
         .background(color=Color.White),
-
-
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(model = category.imageUrl, contentDescription = null,
-            modifier = Modifier.size(40.dp).clip(CircleShape),
+            modifier = Modifier.size(40.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = CircleShape,
+                    ambientColor = Orange,
+                    spotColor = Orange
+                )
+                .clip(CircleShape),
             contentScale = ContentScale.Inside)
+
         Spacer(modifier = Modifier.size(8.dp))
         Text(text = category.name,
             style = TextStyle(fontSize = 10.sp),
@@ -250,10 +268,17 @@ fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
 @Composable
 fun CategoryItem2(){
 
-    Column(modifier = Modifier.padding(8.dp)
+    Column(modifier = Modifier
+        .padding(8.dp)
         .height(90.dp)
         .clickable {  }
         .padding(8.dp)
+        .shadow(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(45.dp),
+            ambientColor = Orange,
+            spotColor = Orange
+        )
         .background(Color.White),
 
         verticalArrangement = Arrangement.Center,
@@ -265,7 +290,14 @@ fun CategoryItem2(){
         Image(
             painter =  painterResource(id=R.drawable.burger),
             contentDescription = null,
-            modifier =Modifier.size(40.dp).clip(CircleShape),
+            modifier =Modifier.size(40.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = CircleShape,
+                    ambientColor = Orange,
+                    spotColor = Orange
+                )
+                .clip(CircleShape),
             contentScale = ContentScale.Crop,
 
             )
