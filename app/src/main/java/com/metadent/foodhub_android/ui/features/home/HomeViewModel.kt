@@ -84,6 +84,19 @@ return list
        return list
     }
 
+    fun onRestaurantSelected(it: Restaurant) {
+        viewModelScope.launch {
+            _navigationEvent.emit(
+                HomeScreenNavigationEvents.NavigationToDetail(
+                    it.name,
+                    it.imageUrl,
+                    it.id
+                )
+            )
+        }
+
+    }
+
     sealed class HomeScreenState{
         object Loading:HomeScreenState()
         object Empty:HomeScreenState()
@@ -91,6 +104,9 @@ return list
     }
 
     sealed class HomeScreenNavigationEvents{
-        object NavigationToDetail:HomeScreenNavigationEvents()
+        data class NavigationToDetail(
+            val name:String, val imageUrl:String,
+            val id:String
+        ):HomeScreenNavigationEvents()
     }
 }

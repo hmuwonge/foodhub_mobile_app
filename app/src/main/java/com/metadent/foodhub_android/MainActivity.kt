@@ -27,15 +27,18 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.data.FoodHubSession
 import com.metadent.foodhub_android.ui.features.auth.AuthScreen
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
 import com.metadent.foodhub_android.ui.features.home.HomeScreen
+import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetailsScreen
 import com.metadent.foodhub_android.ui.navigation.Auth
 import com.metadent.foodhub_android.ui.navigation.Home
 import com.metadent.foodhub_android.ui.navigation.Login
+import com.metadent.foodhub_android.ui.navigation.RestaurantDetails
 import com.metadent.foodhub_android.ui.navigation.SignUp
 import com.metadent.foodhub_android.ui.theme.FoodHubAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -162,6 +165,16 @@ class MainActivity : ComponentActivity() {
 
                         composable<Home> {
                            HomeScreen(navController)
+                        }
+
+                        composable<RestaurantDetails> {
+                            val route = it.toRoute<RestaurantDetails>()
+                            RestaurantDetailsScreen(
+                                navController,
+                                name = route.restaurantName,
+                                imageUrl = route.restaurantImageUrl,
+                                restaurantID = route.restaurantId
+                            )
                         }
                     }
                 }

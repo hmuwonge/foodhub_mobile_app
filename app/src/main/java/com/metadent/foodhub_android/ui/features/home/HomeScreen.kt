@@ -22,7 +22,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.TopStart
@@ -46,19 +48,42 @@ import com.metadent.foodhub_android.R
 import com.metadent.foodhub_android.data.models.Category
 import com.metadent.foodhub_android.data.models.Restaurant
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
+import com.metadent.foodhub_android.ui.navigation.RestaurantDetails
 import com.metadent.foodhub_android.ui.theme.Orange
 import com.metadent.foodhub_android.ui.theme.Typography
 import com.metadent.foodhub_android.ui.theme.Yellow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewModel()){
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collectLatest {
+            when(it){
+                is HomeViewModel.HomeScreenNavigationEvents.NavigationToDetail -> {
+                    navController.navigate(
+                        RestaurantDetails(
+                            it.id,
+                            it.name,
+                            it.imageUrl
+                        )
+                    )
+                }
+                else->{
+
+                }
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         val uiState = viewModel.uiState.collectAsState()
         when(uiState.value){
             is HomeViewModel.HomeScreenState.Loading->{
-                Box(modifier = Modifier.align(Alignment.CenterHorizontally)){
-                    Text(text = "Loading")
+                Box(modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                ){
+//                    Text(text = "Loading")
                                     CircularProgressIndicator(color = Orange,
                     modifier = Modifier.padding(horizontal = 32.dp)
                 )
@@ -77,6 +102,7 @@ fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewMo
 
                 RestaurantList(restaurants = viewModel.restaurants, onRestaurantSelected = {
 //                    navController.navigate("category/${it.id}")
+                    viewModel.onRestaurantSelected(it)
                 })
             }
         }
@@ -102,6 +128,11 @@ fun RestaurantList(restaurants: List<Restaurant>, onRestaurantSelected: (Restaur
                 style = Typography.titleMedium,
                 modifier = Modifier.padding(16.dp)
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(onClick = {}) {
+                Text(text="View All", style = Typography.bodySmall)
+            }
         }
     }
     Spacer(modifier = Modifier.size(16.dp))
@@ -120,6 +151,8 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
             .padding(8.dp)
             .width(226.dp)
             .height(229.dp)
+            .shadow(16.dp, shape = RoundedCornerShape(16.dp))
+            .background(Color.White)
             .clip(RoundedCornerShape(16.dp))
     ){
 
@@ -128,24 +161,14 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
                 model = restaurant.imageUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
-                    .weight(7.5f),
-                contentScale = ContentScale.Inside
+                    .weight(1f),
+                contentScale = ContentScale.Crop
             )
-
-//            Image(
-//                painter =  painterResource(id=R.drawable.restaurant),
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxSize()
-//                    .weight(1f),
-//                contentScale = ContentScale.Crop,
-//
-//                )
             Column(
                 modifier = Modifier
-//                    .weight(2.5f)
-                    .padding(6.dp)
+                    .padding(12.dp)
                     .background(Color.White)
-                    .clickable { }
+                    .clickable {onRestaurantSelected(restaurant) }
             ){
                 Text(
                     text = restaurant.name,
@@ -155,13 +178,15 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Row(modifier = Modifier.fillMaxWidth()){
-                    Row(verticalAlignment = Alignment.CenterVertically,
+                Row(modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center) {
                         Image(
                             painter = painterResource(id = R.drawable.delivery),
                             contentDescription = null,
-                            modifier = Modifier.padding(8.dp).size(12.dp)
+                            modifier = Modifier.padding(vertical = 8.dp).padding(8.dp).size(12.dp)
                         )
                         Spacer(Modifier.width(5.dp))
                         Text(
@@ -171,8 +196,7 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(14.dp))
-
+                    Spacer(modifier = Modifier.size(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center) {
                         Image(
@@ -187,22 +211,22 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
                             color = Color.LightGray
                         )
                     }
-
                 }
             }
         }
 
         Row(modifier = Modifier
             .align(TopStart)
+            .padding(8.dp)
             .clip(RoundedCornerShape(30.dp))
             .background(Color.White)
             .padding(horizontal = 8.dp, vertical = 1.dp),
-//            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "4.5",
-                style = Typography.bodySmall,
+                style = Typography.titleSmall,
                 color = Color.Black,
                 modifier = Modifier
                     .background(Color.White)
@@ -236,8 +260,9 @@ fun CategoryItem(category: Category, onCategorySelected: (Category) -> Unit){
         .height(90.dp)
         .width(60.dp)
         .clickable { onCategorySelected(category) }
+
             .shadow(
-                elevation = 8.dp,
+                12.dp,
                 shape = RoundedCornerShape(45.dp),
                 ambientColor = Orange,
                 spotColor = Orange
