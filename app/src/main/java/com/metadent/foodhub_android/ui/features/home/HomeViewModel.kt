@@ -94,7 +94,6 @@ return list
                 )
             )
         }
-
     }
 
     sealed class HomeScreenState{
@@ -105,7 +104,8 @@ return list
 
     sealed class HomeScreenNavigationEvents{
         data class NavigationToDetail(
-            val name:String, val imageUrl:String,
+            val name:String,
+            val imageUrl:String,
             val id:String
         ):HomeScreenNavigationEvents()
     }

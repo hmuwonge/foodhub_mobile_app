@@ -70,7 +70,6 @@ fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewMo
                     )
                 }
                 else->{
-
                 }
             }
         }
@@ -100,7 +99,9 @@ fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewMo
                     navController.navigate("category/${it.id}")
                 })
 
-                RestaurantList(restaurants = viewModel.restaurants, onRestaurantSelected = {
+                RestaurantList(
+                    restaurants = viewModel.restaurants,
+                    onRestaurantSelected = {
 //                    navController.navigate("category/${it.id}")
                     viewModel.onRestaurantSelected(it)
                 })
@@ -149,10 +150,11 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
     Box(
         modifier = Modifier
             .padding(8.dp)
-            .width(226.dp)
+            .width(266.dp)
             .height(229.dp)
             .shadow(16.dp, shape = RoundedCornerShape(16.dp))
             .background(Color.White)
+            .clickable {onRestaurantSelected(restaurant) }
             .clip(RoundedCornerShape(16.dp))
     ){
 
@@ -168,7 +170,7 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
                 modifier = Modifier
                     .padding(12.dp)
                     .background(Color.White)
-                    .clickable {onRestaurantSelected(restaurant) }
+
             ){
                 Text(
                     text = restaurant.name,
