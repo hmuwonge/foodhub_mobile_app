@@ -1,5 +1,6 @@
 package com.metadent.foodhub_android.ui.navigation
 
+import com.metadent.foodhub_android.data.models.FoodItem
 import kotlinx.serialization.Serializable
 
 
@@ -21,3 +22,6 @@ data class RestaurantDetails(
     val restaurantName:String,
     val restaurantImageUrl:String
 )
+
+@Serializable
+data class FoodDetails(val foodItem: FoodItem)

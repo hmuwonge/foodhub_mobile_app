@@ -1,5 +1,8 @@
 package com.metadent.foodhub_android.ui.features.home
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,8 +57,13 @@ import com.metadent.foodhub_android.ui.theme.Typography
 import com.metadent.foodhub_android.ui.theme.Yellow
 import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewModel()){
+fun SharedTransitionScope.HomeScreen(
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    viewModel: HomeViewModel= hiltViewModel()
+){
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collectLatest {
@@ -101,6 +109,7 @@ fun HomeScreen(navController: NavController,viewModel: HomeViewModel= hiltViewMo
 
                 RestaurantList(
                     restaurants = viewModel.restaurants,
+                    animatedVisibilityScope,
                     onRestaurantSelected = {
 //                    navController.navigate("category/${it.id}")
                     viewModel.onRestaurantSelected(it)
@@ -120,8 +129,12 @@ fun CategoriesList(categories: List<Category>, onCategorySelected: (Category)->U
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RestaurantList(restaurants: List<Restaurant>, onRestaurantSelected: (Restaurant)->Unit){
+fun SharedTransitionScope.RestaurantList(
+    restaurants: List<Restaurant>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onRestaurantSelected: (Restaurant)->Unit){
     Column {
         Row {
             Text(
@@ -139,13 +152,17 @@ fun RestaurantList(restaurants: List<Restaurant>, onRestaurantSelected: (Restaur
     Spacer(modifier = Modifier.size(16.dp))
     LazyRow {
         items(restaurants){
-            RestaurantItem(it,onRestaurantSelected)
+            RestaurantItem(it,animatedVisibilityScope,onRestaurantSelected)
         }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> Unit)
+fun SharedTransitionScope.RestaurantItem(
+    restaurant: Restaurant,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onRestaurantSelected: (Restaurant) -> Unit)
 {
     Box(
         modifier = Modifier
@@ -163,7 +180,11 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
                 model = restaurant.imageUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
-                    .weight(1f),
+                    .weight(1f)
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "image/${restaurant.id}"),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    ),
                 contentScale = ContentScale.Crop
             )
             Column(
@@ -175,7 +196,11 @@ fun RestaurantItem(restaurant: Restaurant,onRestaurantSelected: (Restaurant) -> 
                 Text(
                     text = restaurant.name,
                     style= Typography.titleMedium,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.sharedElement(
+                        state = rememberSharedContentState(key = "title/${restaurant.id}"),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    ),
                 )
 
                 Spacer(modifier = Modifier.size(8.dp))
@@ -344,130 +369,9 @@ fun PreviewCatItem()
     CategoryItem2()
 }
 
-@Composable
-fun RestaurantItem2()
-{
-    Box(
-        modifier = Modifier
-            .padding(8.dp)
-            .width(226.dp)
-            .height(229.dp)
-            .clip(RoundedCornerShape(16.dp))
-    ){
-
-        Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
-//            AsyncImage(
-//                model = R.drawable.restaurant,
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxSize()
-//                    .weight(7.5f),
-//                contentScale = ContentScale.Inside
-//            )
-
-            Image(
-              painter =  painterResource(id=R.drawable.restaurant),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize()
-                    .weight(1f),
-                contentScale = ContentScale.Crop,
-
-            )
-            Column(
-                modifier = Modifier
-//                    .weight(2.5f)
-                    .padding(6.dp)
-                    .background(Color.White)
-                    .clickable { }
-            ){
-                Text(
-                    text = "sample name",
-                    style= Typography.titleMedium,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()){
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center) {
-                        Image(
-                            painter = painterResource(id = R.drawable.delivery),
-                            contentDescription = null,
-                            modifier = Modifier.padding(8.dp).size(12.dp)
-                        )
-                        Spacer(Modifier.size(2.dp))
-                        Text(
-                            text = "Free Delivery",
-                            style = Typography.bodySmall,
-                            color = Color.LightGray
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.size(4.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center) {
-                        Image(
-                            painter = painterResource(id = R.drawable.time),
-                            contentDescription = null,
-                            modifier = Modifier.padding(8.dp).size(12.dp)
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Text(
-                            text = "10-14 mins",
-                            style = Typography.bodySmall,
-                            color = Color.LightGray
-                        )
-                    }
-
-                }
-            }
-        }
-
-        Row(modifier = Modifier
-            .align(TopStart)
-            .clip(RoundedCornerShape(30.dp))
-            .background(Color.White)
-            .padding(horizontal = 8.dp, vertical = 1.dp),
-//            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "4.5",
-                style = Typography.bodySmall,
-                color = Color.Black,
-                modifier = Modifier
-                    .background(Color.White)
-                    .padding(4.dp)
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Image(
-                imageVector = Icons.Filled.Star,
-                contentDescription = null,
-                modifier = Modifier.size(12.dp),
-                colorFilter = ColorFilter.tint(Yellow)
-            )
-            Text(
-                text = "(25)",
-                style = Typography.bodySmall,
-                color = Color.Gray,
-                fontSize = 10.sp
-            )
-
-        }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewRestaurantItem(){
-    RestaurantItem2()
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewHomeScreen()
-{
-    HomeScreen(rememberNavController())
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewHomeScreen()
+//{
+//    HomeScreen(rememberNavController())
+//}
