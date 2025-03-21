@@ -13,11 +13,13 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.metadent.foodhub_android.data.FoodApi
+import com.metadent.foodhub_android.data.FoodHubSession
 import com.metadent.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.metadent.foodhub_android.data.models.OAuthRequest
 import com.metadent.foodhub_android.data.models.SignInRequest
 import com.metadent.foodhub_android.data.remote.ApiResponse
 import com.metadent.foodhub_android.data.remote.safeApiCall
+import com.metadent.foodhub_android.ui.features.auth.AuthScreenViewModel.AuthScreenNavigationEvent
 import com.metadent.foodhub_android.ui.features.auth.BaseAuthViewModel
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel.SignUpEvent
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpViewModel.SignUpNavigationEvent
@@ -31,7 +33,8 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
+class SignInViewModel @Inject constructor(override val foodApi: FoodApi,
+    val session: FoodHubSession): BaseAuthViewModel(foodApi) {
 
 
 
@@ -71,6 +74,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
                 when (response){
                     is ApiResponse.Success->{
                         _uiState.value = SignInEvent.Success
+                        session.storeToken(response.data.token)
                         _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
                     }
                     else->{
@@ -113,6 +117,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
         object NavigateToSignUp: SignInNavigationEvent()
         object NavigateToLogin: SignInNavigationEvent()
         object NavigateToHome: SignInNavigationEvent()
+        object ShowErrorDialog : SignInNavigationEvent()
     }
 
     sealed class SignInEvent{
@@ -136,6 +141,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
 
     override fun onSocialLoginSuccess(token: String) {
     viewModelScope.launch {
+        session.storeToken(token)
         _uiState.value =SignInEvent.Success
         _navigationEvent.emit(SignInNavigationEvent.NavigateToHome)
     }

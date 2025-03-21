@@ -198,7 +198,7 @@ Box(modifier =Modifier.fillMaxSize() ){
         Text(
             text = stringResource(id=R.string.dont_have_account),
             modifier = Modifier.padding(8.dp)
-                .clickable { viewModel.onSignInClick()}
+                .clickable { viewModel.onSignUpClicked()}
                 .fillMaxWidth(),
             textAlign = TextAlign.Center
         )
