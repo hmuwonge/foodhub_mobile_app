@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.metadent.foodhub_android"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.metadent.foodhub_android"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -78,6 +78,9 @@ dependencies {
 
     implementation(libs.facebook.login)
     implementation(libs.facebook.android.sdk)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
