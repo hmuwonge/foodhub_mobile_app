@@ -184,14 +184,15 @@ fun SharedTransitionScope.RestaurantDetailsHeader(
     onBackButton: ()->Unit,
     onFavouriteButton: ()->Unit,
 ){
-    Box(modifier =Modifier.fillMaxWidth()){
+    Box(
+        modifier =Modifier.fillMaxWidth()){
         AsyncImage(model = imageUrl,
             contentDescription = null,
             modifier = Modifier.fillMaxWidth()
                 .height(206.dp)
                 .sharedElement(state = rememberSharedContentState(key="image/${restaurantID}"),
                     animatedVisibilityScope)
-                .width(323.dp)
+//                .width(323.dp)
                 .clip(RoundedCornerShape(
                 bottomStart = 16.dp, bottomEnd = 16.dp
             )),
@@ -234,7 +235,7 @@ fun SharedTransitionScope.FoodItemView(
                 model = foodItem.imageUrl, contentDescription = null,
                 modifier = Modifier.fillMaxSize()
                     .clip(RoundedCornerShape(16.dp))
-                    .sharedElement(state = rememberSharedContentState(key="image/${foodItem.restaurantId}"),
+                    .sharedElement(state = rememberSharedContentState(key="image/${foodItem.id}"),
                         animatedVisibilityScope),
                 contentScale = ContentScale.Crop
             )
@@ -297,7 +298,10 @@ fun SharedTransitionScope.FoodItemView(
             Text(
                 text = foodItem.name,
                 style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1
+                maxLines = 1,
+                modifier = Modifier.sharedElement(
+                    state = rememberSharedContentState(key="image/${foodItem.id}"),
+                        animatedVisibilityScope),
             )
 
             Text(
