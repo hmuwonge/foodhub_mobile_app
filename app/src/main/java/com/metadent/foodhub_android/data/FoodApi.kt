@@ -1,5 +1,7 @@
 package com.metadent.foodhub_android.data
 
+import com.metadent.foodhub_android.data.models.AddToCartRequest
+import com.metadent.foodhub_android.data.models.AddToCartResponse
 import com.metadent.foodhub_android.data.models.SignUpRequest
 import com.metadent.foodhub_android.data.models.AuthResponse
 import com.metadent.foodhub_android.data.models.CategoriesResponse
@@ -37,4 +39,10 @@ interface FoodApi {
     @GET("/restaurants/{restaurantId}/menu")
     suspend fun getFoodItemsForRestaurant(@Path("restaurantId") restaurantId:String):
             Response<FoodItemResponse>
+
+    @POST("/cart")
+    suspend fun addToCart(@Body request: AddToCartRequest): Response<AddToCartResponse>
+
+    @POST("/cart")
+    suspend fun getCart(): Response<AddToCartResponse>
 }
