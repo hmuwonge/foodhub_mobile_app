@@ -25,6 +25,12 @@ class FoodDetailsViewModel @Inject constructor(val foodApi: FoodApi): ViewModel(
     private val _quantity = MutableStateFlow<Int>(0)
     val quality = _quantity.asStateFlow()
 
+    fun goToCart(){
+        viewModelScope.launch {
+            _event.emit(FoodDetailsEvent.goToCart)
+        }
+    }
+
     fun incrementQuantity(){
         if (quality.value ==5){
             return

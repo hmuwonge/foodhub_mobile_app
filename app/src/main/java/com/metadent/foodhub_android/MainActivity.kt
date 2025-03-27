@@ -36,10 +36,12 @@ import com.metadent.foodhub_android.data.models.FoodItem
 import com.metadent.foodhub_android.ui.features.auth.AuthScreen
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
+import com.metadent.foodhub_android.ui.features.cart.CartScreen
 import com.metadent.foodhub_android.ui.features.food_item_details.FoodDetailsScreen
 import com.metadent.foodhub_android.ui.features.home.HomeScreen
 import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetailsScreen
 import com.metadent.foodhub_android.ui.navigation.Auth
+import com.metadent.foodhub_android.ui.navigation.Cart
 import com.metadent.foodhub_android.ui.navigation.FoodDetails
 import com.metadent.foodhub_android.ui.navigation.Home
 import com.metadent.foodhub_android.ui.navigation.Login
@@ -192,6 +194,10 @@ class MainActivity : ComponentActivity() {
 
                                 FoodDetailsScreen(navController, foodItem = route.foodItem,
                                     this)
+                            }
+
+                            composable<Cart>() {
+                                CartScreen(navController)
                             }
                         }
                     }

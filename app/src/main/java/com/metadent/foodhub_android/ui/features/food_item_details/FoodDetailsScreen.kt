@@ -20,10 +20,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,9 +41,12 @@ import com.metadent.foodhub_android.R
 import com.metadent.foodhub_android.data.models.FoodItem
 import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetails
 import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetailsHeader
+import com.metadent.foodhub_android.ui.navigation.Cart
+import com.metadent.foodhub_android.ui.widgets.BasicDialog
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SharedTransitionScope.FoodDetailsScreen(
     navController: NavController,
@@ -51,6 +57,8 @@ fun SharedTransitionScope.FoodDetailsScreen(
     val count = viewModel.quality.collectAsStateWithLifecycle()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val isLoading = remember { mutableStateOf(false) }
+    val showErrorDialog =remember { mutableStateOf(false) }
+    val showSuccessDialog =remember { mutableStateOf(false) }
 
     when(uiState.value){
         FoodDetailsViewModel.FoodDetailsUiState.Loading -> {
@@ -65,23 +73,26 @@ fun SharedTransitionScope.FoodDetailsScreen(
         viewModel.event.collectLatest {
             when(it){
                 is FoodDetailsViewModel.FoodDetailsEvent.onAddToCart->{
-                    Toast.makeText(
-                        navController.context,
-                        "Item added to cart",
-                        Toast.LENGTH_SHORT
-                    ).show()
+//                    Toast.makeText(
+//                        navController.context,
+//                        "Item added to cart",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+                    showSuccessDialog.value=true
                 }
 
                 is FoodDetailsViewModel.FoodDetailsEvent.showErrorDialog -> {
-                    Toast.makeText(
-                        navController.context,
-                        it.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
+//                    Toast.makeText(
+//                        navController.context,
+//                        it.message,
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+
+                    showErrorDialog.value =true
                 }
 
                 is FoodDetailsViewModel.FoodDetailsEvent.goToCart -> {
-                    navController.navigate("cart")
+                    navController.navigate(Cart)
                 }
             }
         }
@@ -105,8 +116,9 @@ fun SharedTransitionScope.FoodDetailsScreen(
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth()
-            .padding(16.dp)) {
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)) {
             Text(
                 text = "USH${foodItem.price}",
                 color = MaterialTheme.colorScheme.primary,
@@ -115,30 +127,11 @@ fun SharedTransitionScope.FoodDetailsScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.add),
-                    contentDescription = null,
-                    modifier = Modifier.clip(CircleShape).clickable{
-                        viewModel.incrementQuantity()
-                    }
-                )
-
-                Spacer(modifier = Modifier.size(4.dp))
-
-                Text(text = "${count.value}",
-                    style = MaterialTheme.typography.titleMedium)
-
-                Spacer(modifier = Modifier.size(4.dp))
-
-                Image(painter = painterResource(id = R.drawable.minus),
-                    contentDescription = null,
-                    modifier = Modifier.clip(CircleShape).clickable{
-                        viewModel.decrementQuantity()
-                    })
-            }
+            FoodItemCounter(
+                onCountIncrement = {viewModel.incrementQuantity()},
+                onCountDecrement = { viewModel.decrementQuantity() },
+                count = count.value
+            )
         }
 
 
@@ -152,15 +145,19 @@ fun SharedTransitionScope.FoodDetailsScreen(
                )
            },
             enabled = !isLoading.value,
-            modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally)
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Absolute.Left,
-                modifier = Modifier.background(MaterialTheme.colorScheme.primary)
-                .padding(horizontal = 4.dp)
-                .clip(RoundedCornerShape(32.dp)
-                )
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 4.dp)
+                    .clip(
+                        RoundedCornerShape(32.dp)
+                    )
             ) {
                     Image(painter = painterResource(id =R.drawable.cart ),contentDescription = null)
                     Spacer(modifier = Modifier.size(8.dp))
@@ -175,4 +172,74 @@ fun SharedTransitionScope.FoodDetailsScreen(
 
     }
 
+    if (showSuccessDialog.value){
+        ModalBottomSheet(onDismissRequest = {showSuccessDialog.value=false}) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Text(text = "Item added to cart",
+                    style= MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.size(16.dp))
+                Button(onClick = {
+                    showSuccessDialog.value=false
+                    viewModel.goToCart()
+                },
+                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+                    Text(text = "Go To Cart")
+                }
+
+                Button(onClick = {showSuccessDialog.value =false},
+                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+                    Text(text = "Ok")
+                }
+
+            }
+        }
+    }
+
+    if (showErrorDialog.value){
+        ModalBottomSheet(onDismissRequest = {showSuccessDialog.value=false}) {
+            BasicDialog(title="Error", description = (uiState.value as? FoodDetailsViewModel.FoodDetailsUiState.Error)?.message ?: "Failed") { }
+        }
+    }
+
+}
+
+
+
+@Composable
+fun FoodItemCounter(
+    onCountIncrement:()->Unit,
+    onCountDecrement:()->Unit,
+    count: Int
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.add),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onCountIncrement.invoke()
+                }
+        )
+
+        Spacer(modifier = Modifier.size(4.dp))
+
+        Text(
+            text = "$count",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.size(4.dp))
+
+        Image(
+            painter = painterResource(id = R.drawable.minus),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onCountDecrement.invoke()
+                })
+    }
 }
