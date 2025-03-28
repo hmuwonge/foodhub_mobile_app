@@ -1,6 +1,5 @@
 package com.metadent.foodhub_android.ui.features.food_item_details
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -26,7 +25,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,8 +41,12 @@ import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDet
 import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetailsHeader
 import com.metadent.foodhub_android.ui.navigation.Cart
 import com.metadent.foodhub_android.ui.widgets.BasicDialog
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -206,7 +208,7 @@ fun SharedTransitionScope.FoodDetailsScreen(
 
 
 @Composable
-fun FoodItemCounter(
+fun FoodItemCounterOld(
     onCountIncrement:()->Unit,
     onCountDecrement:()->Unit,
     count: Int
@@ -233,6 +235,68 @@ fun FoodItemCounter(
 
         Spacer(modifier = Modifier.size(4.dp))
 
+        Image(
+            painter = painterResource(id = R.drawable.minus),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onCountDecrement.invoke()
+                })
+    }
+}
+
+
+
+@Composable
+fun FoodItemCounter(
+    onCountIncrement: () -> Unit,
+    onCountDecrement: () -> Unit,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp) // Spacing between items
+    ) {
+//        IconButton(
+//            onClick = onCountIncrement,
+//            modifier = Modifier
+//                .clip(CircleShape)
+//                .padding(8.dp)
+//        ) {
+//            Icon(
+//                imageVector = Icons.Filled.Add,
+//                contentDescription = stringResource(id = R.string.increase_item_count), // Use string resources for accessibility
+//            )
+//        }
+        Image(
+            painter = painterResource(id = R.drawable.add),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onCountIncrement.invoke()
+                }
+        )
+
+        Text(
+            text = "$count",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+//        IconButton(
+//            onClick = onCountDecrement,
+//            modifier = Modifier
+//                .clip(CircleShape)
+//                .padding(8.dp)
+//        ) {
+//            Icon(
+//                imageVector = Icons.Filled.Add,
+//                contentDescription = stringResource(id = R.string.decrease_item_count), // Use string resources for accessibility
+//            )
+//        }
         Image(
             painter = painterResource(id = R.drawable.minus),
             contentDescription = null,

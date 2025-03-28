@@ -22,5 +22,7 @@
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">f8c0a691eb0d19e11ca608210ca85e62</string>
     <string name="ok">Ok</string>
+    <string name="increase_item_count">increase item count</string>
+    <string name="decrease_item_count">Decrease item count</string>
 
 </resources>
