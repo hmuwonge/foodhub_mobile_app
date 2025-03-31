@@ -19,14 +19,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,11 +45,29 @@ import com.metadent.foodhub_android.R
 import com.metadent.foodhub_android.data.models.CartItem
 import com.metadent.foodhub_android.data.models.CheckoutDetails
 import com.metadent.foodhub_android.ui.features.food_item_details.FoodItemCounter
+import com.metadent.foodhub_android.ui.widgets.BasicDialog
 import com.metadent.foodhub_android.utils.formatCurrency
+import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltViewModel()){
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val showErrorDialog = remember {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(key1 =true) {
+        viewModel.event.collectLatest {
+            when(it){
+                is CartViewModel.CartEvent.OnItemRemoveError,
+                is CartViewModel.CartEvent.OnQuantityUpdateError,
+                is CartViewModel.CartEvent.showErrorDialog->{
+                    showErrorDialog.value =true
+                }
+                else -> {}
+            }
+        }
+    }
 
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -69,16 +91,14 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltView
                     items(data.items){
                         CartItemView(
                             cartItem = it,
-                            onIncrement = { cartItem, quantity ->
+                            onIncrement = { cartItem, _ ->
                                 viewModel.incrementQuantity(
-                                    cartItem,
-                                    quantity
+                                    cartItem
                                 )
                             },
-                            onDecrement = { cartItem, quantity ->
+                            onDecrement = { cartItem, _ ->
                                 viewModel.decrementQuantity(
-                                    cartItem,
-                                    quantity
+                                    cartItem
                                 )
                             }, onRemove = {
                                 viewModel.removeItem(it)
@@ -116,6 +136,14 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltView
             }
         }
 
+    }
+
+    if (showErrorDialog.value){
+        ModalBottomSheet(onDismissRequest = {showErrorDialog.value =false}) {
+            BasicDialog(title = viewModel.errorTitle, description = viewModel.errorMessage) {
+                showErrorDialog.value=false
+            }
+        }
     }
 
 }
@@ -180,7 +208,7 @@ fun CartItemView(cartItem: CartItem,
                 Text(text=cartItem.menuItemId.name, style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {onRemove.invoke(cartItem)},
-                    modifier = Modifier.size(24.dp)) {
+                    modifier = Modifier.size(18.dp)) {
                     Icon(imageVector = Icons.Filled.Close,contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary)
                 }

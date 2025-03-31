@@ -19,10 +19,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
+
+    var errorTitle: String=""
+    var errorMessage: String=""
     private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
     val uiState = _uiState.asStateFlow()
     private val _event = MutableSharedFlow<CartEvent>()
     val event = _event
+
+   private var cartResponse: CartResponse? =null
 
     init {
         getCart()
@@ -34,6 +39,7 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
              val response = safeApiCall { foodApi.getCart() }
              when(response){
                  is ApiResponse.Success->{
+                     cartResponse = response.data
                      _uiState.value = CartUiState.Success(response.data)
                  }
 
@@ -42,19 +48,25 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
                  }
 
                  else -> {
-                     _uiState.value = CartUiState.Error("An error occured")
+                     _uiState.value = CartUiState.Error("An error occurred")
                  }
              }
          }
     }
 
 
-    fun incrementQuantity(cartItem: CartItem, quantity: Int){
-
+    fun incrementQuantity(cartItem: CartItem){
+        if (cartItem.quantity == 5){
+            return
+        }
+        updateItemQuantity(cartItem, cartItem.quantity + 1)
     }
 
-    fun decrementQuantity(cartItem: CartItem, quantity: Int){
-
+    fun decrementQuantity(cartItem: CartItem){
+        if (cartItem.quantity == 1){
+            return
+        }
+        updateItemQuantity(cartItem, cartItem.quantity-1)
     }
 
     private fun updateItemQuantity(cartItem: CartItem, quantity: Int){
@@ -67,11 +79,21 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
                     getCart()
                 }
 
-                is ApiResponse.Error->{
+//                is ApiResponse.Error->{
+//                    cartResponse?.let {
+//                        _uiState.value = CartUiState.Success(cartResponse!!)
+//                    }
+//                    _event.emit(CartEvent.OnQuantityUpdateError)
+//                }
 
+                else -> {
+                    cartResponse?.let {
+                        _uiState.value = CartUiState.Success(cartResponse!!)
+                    }
+                    errorTitle="Cannot Update Quantity"
+                    errorMessage="An error occurred while updating item quantity"
+                    _event.emit(CartEvent.OnQuantityUpdateError)
                 }
-
-                else -> {}
             }
         }
     }
@@ -82,6 +104,31 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
     }
 
     fun removeItem(cartItem: CartItem){
+        viewModelScope.launch {
+            val res = safeApiCall {
+                foodApi.deleteCartItem(cartItem.id)
+            }
+            when(res){
+                is ApiResponse.Success->{
+                    getCart()
+                }
+
+//                is ApiResponse.Error->{
+//                    cartResponse?.let {
+//                        _uiState.value = CartUiState.Success(cartResponse!!)
+//                    }
+//                }
+
+                else -> {
+                    cartResponse?.let {
+                        _uiState.value = CartUiState.Success(cartResponse!!)
+                    }
+                    errorTitle="Cannot Delete Quantity"
+                    errorMessage="An error occurred while deleting item quantity"
+                    _event.emit(CartEvent.OnItemRemoveError)
+                }
+            }
+        }
 
     }
 
@@ -95,5 +142,7 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
     sealed class CartEvent{
         object showErrorDialog: CartEvent()
         object OnCheckout: CartEvent()
+        object OnQuantityUpdateError: CartEvent()
+        object OnItemRemoveError: CartEvent()
     }
 }
