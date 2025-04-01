@@ -212,7 +212,6 @@ fun CartItemView(cartItem: CartItem,
                     Icon(imageVector = Icons.Filled.Close,contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary)
                 }
-
             }
             Text(text = cartItem.menuItemId.description,
                 maxLines = 1,

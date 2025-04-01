@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
@@ -18,16 +19,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.metadent.foodhub_android.data.FoodApi
@@ -45,10 +58,13 @@ import com.metadent.foodhub_android.ui.navigation.Cart
 import com.metadent.foodhub_android.ui.navigation.FoodDetails
 import com.metadent.foodhub_android.ui.navigation.Home
 import com.metadent.foodhub_android.ui.navigation.Login
+import com.metadent.foodhub_android.ui.navigation.NavRoutes
+import com.metadent.foodhub_android.ui.navigation.Notification
 import com.metadent.foodhub_android.ui.navigation.RestaurantDetails
 import com.metadent.foodhub_android.ui.navigation.SignUp
 import com.metadent.foodhub_android.ui.navigation.foodItemNavType
 import com.metadent.foodhub_android.ui.theme.FoodHubAndroidTheme
+import com.metadent.foodhub_android.ui.theme.Yellow
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +82,13 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var session: FoodHubSession
+
+    sealed class BottomNavItem(val route: NavRoutes, val icon: Int){
+        object Home: BottomNavItem(com.metadent.foodhub_android.ui.navigation.Home, R.drawable.home_icon)
+        object Cart: BottomNavItem(com.metadent.foodhub_android.ui.navigation.Cart, R.drawable.ic_cart)
+        object Notification: BottomNavItem(com.metadent.foodhub_android.ui.navigation.Notification, R.drawable.ic_notification)
+    }
+
     @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().apply {
@@ -105,8 +128,53 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FoodHubAndroidTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                   val navController = rememberNavController()
+                val shouldShowBottomNav= remember { mutableStateOf(false) }
+                val navItems = listOf(
+                    BottomNavItem.Home,
+                    BottomNavItem.Cart,
+                    BottomNavItem.Notification,
+                )
+
+                val navController = rememberNavController();
+
+                Scaffold(modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        val currentRoute = navController.currentBackStackEntryAsState().value?.destination
+
+                        AnimatedVisibility(visible = shouldShowBottomNav.value) {
+                            NavigationBar(
+                                containerColor = Color.White
+                            ) {
+                                navItems.forEach { item->
+                                    val selected=currentRoute?.hierarchy?.any{
+                                        it.route==item.route::class.qualifiedName
+                                    }==true
+                                    NavigationBarItem(
+                                        selected = selected,
+                                        onClick = {
+                                            navController.navigate(item.route)
+                                        }, icon = {
+                                            Box{
+                                                Text(text = "3",
+                                                    modifier = Modifier
+                                                        .padding(8.dp)
+                                                        .align(Alignment.TopEnd)
+                                                        .background(Yellow)
+                                                        .clip(CircleShape), color = Color.White)
+
+                                                Icon(
+                                                    painter = painterResource(id = item.icon),
+                                                    contentDescription = null,
+                                                    tint=if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
+                                                    modifier = Modifier.align(Center)
+                                                )
+                                            }
+                                        })
+                                }
+                            }
+                        }
+
+                    }) { innerPadding ->
 
                     SharedTransitionLayout {
                         NavHost(navController=navController,
@@ -138,14 +206,17 @@ class MainActivity : ComponentActivity() {
                             }
                         ){
                             composable<SignUp> {
+                                shouldShowBottomNav.value=false
                                 SignUpScreen(navController)
                             }
 
                             composable<Auth> {
+                                shouldShowBottomNav.value=false
                                 AuthScreen(navController)
                             }
 
                             composable<Login>(
+
                                 enterTransition = {
                                     slideIntoContainer(
                                         towards = AnimatedContentTransitionScope.SlideDirection.Up,
@@ -171,14 +242,17 @@ class MainActivity : ComponentActivity() {
                                     )+ fadeOut(animationSpec = tween(300))
                                 }
                             ) {
+                                shouldShowBottomNav.value=false
                                 SignInScreen(navController)
                             }
 
                             composable<Home> {
+                                shouldShowBottomNav.value=true
                                 HomeScreen(navController,this)
                             }
 
                             composable<RestaurantDetails> {
+                                shouldShowBottomNav.value=true
                                 val route = it.toRoute<RestaurantDetails>()
                                 RestaurantDetailsScreen(
                                     navController,
@@ -190,6 +264,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<FoodDetails>(typeMap = mapOf(typeOf<FoodItem>() to foodItemNavType)){
+                                shouldShowBottomNav.value=true
                                 val route =it.toRoute<FoodDetails>()
 
                                 FoodDetailsScreen(navController, foodItem = route.foodItem,
@@ -197,7 +272,13 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<Cart>() {
+                                shouldShowBottomNav.value=true
                                 CartScreen(navController)
+                            }
+
+                            composable<Notification>{
+                                shouldShowBottomNav.value=false
+                                Box{}
                             }
                         }
                     }
