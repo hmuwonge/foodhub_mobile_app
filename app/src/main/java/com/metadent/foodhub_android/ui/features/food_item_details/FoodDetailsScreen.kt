@@ -54,6 +54,7 @@ fun SharedTransitionScope.FoodDetailsScreen(
     navController: NavController,
     foodItem: FoodItem,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    onItemAddedToCart:()-> Unit,
     viewModel: FoodDetailsViewModel = hiltViewModel()
 ){
     val count = viewModel.quality.collectAsStateWithLifecycle()
@@ -81,6 +82,7 @@ fun SharedTransitionScope.FoodDetailsScreen(
 //                        Toast.LENGTH_SHORT
 //                    ).show()
                     showSuccessDialog.value=true
+                    onItemAddedToCart()
                 }
 
                 is FoodDetailsViewModel.FoodDetailsEvent.showErrorDialog -> {

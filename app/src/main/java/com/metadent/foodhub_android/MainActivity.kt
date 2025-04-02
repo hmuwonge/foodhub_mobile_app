@@ -19,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,9 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -50,6 +55,7 @@ import com.metadent.foodhub_android.ui.features.auth.AuthScreen
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
 import com.metadent.foodhub_android.ui.features.cart.CartScreen
+import com.metadent.foodhub_android.ui.features.cart.CartViewModel
 import com.metadent.foodhub_android.ui.features.food_item_details.FoodDetailsScreen
 import com.metadent.foodhub_android.ui.features.home.HomeScreen
 import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetailsScreen
@@ -136,6 +142,8 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val navController = rememberNavController();
+                val cartViewModel: CartViewModel= hiltViewModel()
+                val cartItemCount = cartViewModel.cartIemCount.collectAsStateWithLifecycle()
 
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -154,20 +162,29 @@ class MainActivity : ComponentActivity() {
                                         onClick = {
                                             navController.navigate(item.route)
                                         }, icon = {
-                                            Box{
-                                                Text(text = "3",
-                                                    modifier = Modifier
-                                                        .padding(8.dp)
-                                                        .align(Alignment.TopEnd)
-                                                        .background(Yellow)
-                                                        .clip(CircleShape), color = Color.White)
-
+                                            Box(modifier = Modifier.size(48.dp)){
                                                 Icon(
                                                     painter = painterResource(id = item.icon),
                                                     contentDescription = null,
                                                     tint=if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
                                                     modifier = Modifier.align(Center)
                                                 )
+
+                                                if (item.route ==Cart){
+
+                                                    Box(modifier = Modifier.size(16.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Yellow)
+                                                        .align(Alignment.TopEnd)){
+
+                                                        Text(text = "${cartItemCount.value}",
+                                                            modifier = Modifier
+                                                                .align(Center),
+                                                            color = Color.White,
+                                                            style = TextStyle(fontSize = 10.sp))
+                                                    }
+                                                }
+
                                             }
                                         })
                                 }
@@ -268,12 +285,12 @@ class MainActivity : ComponentActivity() {
                                 val route =it.toRoute<FoodDetails>()
 
                                 FoodDetailsScreen(navController, foodItem = route.foodItem,
-                                    this)
+                                    this, onItemAddedToCart = {cartViewModel.getCart()})
                             }
 
                             composable<Cart>() {
                                 shouldShowBottomNav.value=true
-                                CartScreen(navController)
+                                CartScreen(navController, cartViewModel)
                             }
 
                             composable<Notification>{
