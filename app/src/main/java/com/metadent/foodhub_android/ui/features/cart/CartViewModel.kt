@@ -148,5 +148,6 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
         object OnCheckout: CartEvent()
         object OnQuantityUpdateError: CartEvent()
         object OnItemRemoveError: CartEvent()
+        object onAddressClicked: CartEvent()
     }
 }

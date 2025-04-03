@@ -59,6 +59,7 @@ import com.metadent.foodhub_android.ui.features.cart.CartViewModel
 import com.metadent.foodhub_android.ui.features.food_item_details.FoodDetailsScreen
 import com.metadent.foodhub_android.ui.features.home.HomeScreen
 import com.metadent.foodhub_android.ui.features.restaurant_details.RestaurantDetailsScreen
+import com.metadent.foodhub_android.ui.navigation.AddressList
 import com.metadent.foodhub_android.ui.navigation.Auth
 import com.metadent.foodhub_android.ui.navigation.Cart
 import com.metadent.foodhub_android.ui.navigation.FoodDetails
@@ -294,8 +295,13 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<Notification>{
-                                shouldShowBottomNav.value=false
+                                shouldShowBottomNav.value=true
                                 Box{}
+                            }
+
+                            composable<AddressList>{
+                                shouldShowBottomNav.value=true
+                                AddressScreen()
                             }
                         }
                     }

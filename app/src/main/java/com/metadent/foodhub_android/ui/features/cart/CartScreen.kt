@@ -4,7 +4,9 @@ import android.graphics.Color
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -42,9 +45,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.metadent.foodhub_android.R
+import com.metadent.foodhub_android.data.models.Address
 import com.metadent.foodhub_android.data.models.CartItem
 import com.metadent.foodhub_android.data.models.CheckoutDetails
 import com.metadent.foodhub_android.ui.features.food_item_details.FoodItemCounter
+import com.metadent.foodhub_android.ui.navigation.AddressList
 import com.metadent.foodhub_android.ui.widgets.BasicDialog
 import com.metadent.foodhub_android.utils.formatCurrency
 import kotlinx.coroutines.flow.collectLatest
@@ -64,13 +69,18 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel){
                 is CartViewModel.CartEvent.showErrorDialog->{
                     showErrorDialog.value =true
                 }
+                is CartViewModel.CartEvent.onAddressClicked->{
+                    navController.navigate(AddressList)
+                }
                 else -> {}
             }
         }
     }
 
 
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp)) {
         CartHeaderView(onBack = {
             navController.popBackStack()
         })
@@ -143,6 +153,9 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel){
 
         Spacer(modifier = Modifier.weight(1f))
         if (uiState.value is CartViewModel.CartUiState.Success){
+            AddressCard(null,{
+
+            })
             Button(
                 onClick = {viewModel.checkout()},
                 modifier = Modifier.fillMaxWidth()) {
@@ -161,6 +174,40 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel){
     }
 
 }
+
+@Composable
+fun AddressCard(address: Address?, onAddressClicked:()->Unit)
+{
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp)
+            .clip(
+                RoundedCornerShape(8.dp)
+            )
+            .background(androidx.compose.ui.graphics.Color.White)
+            .padding(16.dp)
+            .clickable{onAddressClicked.invoke()}
+
+    ){
+        if (address !=null)
+        {
+            Column {
+                Text(text = "${address.addressLine1}",
+                    style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    text = "${address.city}, ${address.state}, ${address.country}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = androidx.compose.ui.graphics.Color.Gray
+                )
+            }
+        }else
+            Text(text = "Select Address", style = MaterialTheme.typography.bodyMedium)
+    }
+
+}
+
 
 @Composable
 fun CheckoutDetailsView(checkoutDetails: CheckoutDetails) {
@@ -190,7 +237,8 @@ fun CheckoutDetailsView(checkoutDetails: CheckoutDetails) {
 fun CheckoutRowItem(title: String, value: Double){
     Column {
 
-        Row(modifier = Modifier.fillMaxWidth()
+        Row(modifier = Modifier
+            .fillMaxWidth()
             .padding(vertical = 4.dp)) {
             Text(text = title, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.weight(1f))
@@ -208,11 +256,14 @@ fun CartItemView(cartItem: CartItem,
                  onDecrement: (CartItem, Int)->Unit,
                  onRemove:(CartItem)->Unit) {
 
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceAround) {
         AsyncImage(model = cartItem.menuItemId.imageUrl,
             contentDescription = null,
-            modifier = Modifier.size(82.dp)
+            modifier = Modifier
+                .size(82.dp)
                 .clip(RoundedCornerShape(12.dp)),
             contentScale = ContentScale.Crop
         )
