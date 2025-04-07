@@ -58,6 +58,11 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
          }
     }
 
+    fun onAddressClicked() {
+        viewModelScope.launch {
+            _event.emit(CartEvent.onAddressClicked)
+        }
+    }
 
     fun incrementQuantity(cartItem: CartItem){
         if (cartItem.quantity == 5){

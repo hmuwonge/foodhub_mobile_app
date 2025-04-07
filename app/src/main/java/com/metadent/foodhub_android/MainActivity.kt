@@ -51,6 +51,7 @@ import androidx.navigation.toRoute
 import com.metadent.foodhub_android.data.FoodApi
 import com.metadent.foodhub_android.data.FoodHubSession
 import com.metadent.foodhub_android.data.models.FoodItem
+import com.metadent.foodhub_android.ui.features.address.AddressListScreen
 import com.metadent.foodhub_android.ui.features.auth.AuthScreen
 import com.metadent.foodhub_android.ui.features.auth.signIn.SignInScreen
 import com.metadent.foodhub_android.ui.features.auth.signUp.SignUpScreen
@@ -301,7 +302,7 @@ class MainActivity : ComponentActivity() {
 
                             composable<AddressList>{
                                 shouldShowBottomNav.value=true
-                                AddressScreen()
+                                AddressListScreen(navController)
                             }
                         }
                     }

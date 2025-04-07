@@ -1,7 +1,5 @@
 package com.metadent.foodhub_android.ui.features.cart
 
-import android.graphics.Color
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.metadent.foodhub_android.R
@@ -53,6 +52,7 @@ import com.metadent.foodhub_android.ui.navigation.AddressList
 import com.metadent.foodhub_android.ui.widgets.BasicDialog
 import com.metadent.foodhub_android.utils.formatCurrency
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -154,7 +154,7 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel){
         Spacer(modifier = Modifier.weight(1f))
         if (uiState.value is CartViewModel.CartUiState.Success){
             AddressCard(null,{
-
+                viewModel.onAddressClicked()
             })
             Button(
                 onClick = {viewModel.checkout()},
@@ -172,8 +172,9 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel){
             }
         }
     }
-
 }
+
+
 
 @Composable
 fun AddressCard(address: Address?, onAddressClicked:()->Unit)
@@ -181,6 +182,7 @@ fun AddressCard(address: Address?, onAddressClicked:()->Unit)
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(8.dp)
             .shadow(8.dp)
             .clip(
                 RoundedCornerShape(8.dp)

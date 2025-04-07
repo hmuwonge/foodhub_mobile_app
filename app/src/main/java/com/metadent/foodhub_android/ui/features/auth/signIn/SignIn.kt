@@ -121,7 +121,7 @@ Box(modifier =Modifier.fillMaxSize() ){
         Box(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(id=R.string.sign_up),
+            text = stringResource(id=R.string.sign_in),
             fontSize = 35.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth()

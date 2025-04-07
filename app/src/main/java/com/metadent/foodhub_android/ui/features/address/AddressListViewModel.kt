@@ -23,10 +23,13 @@ class AddressListViewModel @Inject constructor(val foodApi: FoodApi): ViewModel(
     private val _event = MutableSharedFlow<AddressEvent?>()
     val event = _event.asSharedFlow()
 
+    init {
+        getAddress()
+    }
+
     fun getAddress(){
         viewModelScope.launch {
             _state.value = AddressState.Loading
-
             val result = safeApiCall { foodApi.getUserAddress() }
         }
     }
@@ -35,5 +38,9 @@ class AddressListViewModel @Inject constructor(val foodApi: FoodApi): ViewModel(
         object Loading: AddressState()
         data class Success(val data: List<Address>): AddressState()
         data class Error(val message: String): AddressState()
+    }
+    sealed class AddressEvent{
+        object NavigateToEditAddress: AddressEvent()
+        object NavigateToAddress: AddressEvent()
     }
 }
